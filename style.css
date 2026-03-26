@@ -1,0 +1,91 @@
+/* Configuração Geral do Corpo */
+body {
+    background-color: #000000; /* Preto Absoluto */
+    color: #33ff33; /* Verde Neon Base */
+    font-family: 'Courier New', Courier, monospace; /* Fonte Terminal */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+/* Media Query para dispositivos móveis */
+@media (max-width: 600px) {
+    .terminal-container {
+        width: 95%; /* Ocupa quase a largura toda */
+        height: 90vh; /* Fica mais alto para caber o teclado virtual */
+        padding: 10px;
+    }
+
+/* O Container do Terminal */
+.terminal-container {
+    width: 80%;
+    max-width: 700px;
+    height: 80vh;
+    border: 2px solid #33ff33;
+    border-radius: 5px;
+    padding: 20px;
+    background-color: #050505;
+    box-shadow: 0 0 15px rgba(51, 255, 51, 0.5); /* Brilho Neon Externo */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Área de Saída de Texto */
+.output {
+    flex-grow: 1; /* Ocupa todo o espaço disponível */
+    overflow-y: auto; /* Adiciona barra de rolagem se o texto crescer */
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px #33ff33; /* Brilho Neon no Texto */
+}
+
+.output p {
+    margin: 5px 0;
+}
+
+/* Estilos de Cores para as Mensagens */
+.msg-info { color: #33ff33; }
+.msg-error { color: #ff3333; text-shadow: 0 0 5px #ff3333; }
+.msg-win { color: #ffff33; text-shadow: 0 0 10px #ffff33; font-weight: bold; }
+.msg-lost { color: #ff9933; text-shadow: 0 0 5px #ff9933; }
+
+/* Linha de Entrada */
+.input-line {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #33ff33;
+    padding-top: 10px;
+}
+
+.prompt {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* O Campo de Texto */
+input[type="number"] {
+    background: transparent;
+    border: none;
+    color: #33ff33;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    outline: none;
+    width: 80px;
+}
+
+/* O Botão */
+#guess-btn {
+    background-color: #33ff33;
+    color: #000;
+    border: none;
+    padding: 12px 20px;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+}
+
+#guess-btn:hover {
+    background-color: #ffff33;
+}
