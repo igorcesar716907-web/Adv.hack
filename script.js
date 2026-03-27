@@ -31,53 +31,50 @@ writeToTerminal(`Tentativas autorizadas: ${totalTentativas}`, 'info');
 
 // Função principal do chute
 function processarChute() {
-    // Se o jogo acabou, não faz nada
     if (gameOver) return;
 
-    // Pega e valida a entrada do usuário
-    const num_user = parseInt(userInput.value);
-    userInput.value = ''; // Limpa o campo para o próximo chute
-    userInput.focus();    // Mantém o foco no campo
+    const entrada = userInput.value;
+    const num_user = parseInt(entrada);
+    userInput.value = ''; 
+    userInput.focus();
 
-    // Validação 1: Não é um número
-    if (isNaN(num_user)) {
-        writeToTerminal("ERRO: Apenas números seu neandertal! Tentativa anulada.", 'error');
-        return;
+    // 1. VALIDAÇÃO COM PUNIÇÃO
+    // Se não for número OU estiver fora do limite, punimos:
+    if (isNaN(num_user) || num_user < min || num_user > max) {
+        tentativasUsadas++; // <--- AQUI ESTÁ O DESCONTO DA TENTATIVA!
+        let restante = totalTentativas - tentativasUsadas;
+
+        if (isNaN(num_user)) {
+            writeToTerminal("ERRO: Apenas números seu neandertal! Perdeu uma tentativa.", 'error');
+        } else {
+            writeToTerminal(`ERRO: Fora do intervalo (${min}-${max})! Perdeu uma tentativa.`, 'error');
+        }
+
+        verificarFimDeJogo(restante);
+        return; // Para a execução aqui, mas a tentativa já foi cobrada
     }
 
-    // Validação 2: Fora do intervalo
-    if (num_user < min || num_user > max) {
-        writeToTerminal(`ERRO: Fora do intervalo autorizado (${min}-${max}) seu mierda! Tentativa anulada.`, 'error');
-        return;
-    }
-
-    // Lógica do Chute
+    // 2. LÓGICA DE CHUTE CORRETO (Dentro das regras)
     tentativasUsadas++;
-    const restante = totalTentativas - tentativasUsadas;
+    let restante = totalTentativas - tentativasUsadas;
 
     if (num_user === num_sort) {
-        writeToTerminal("SISTEMA ACESSADO!", 'info');
-        writeToTerminal(`PARABÉNS!! Você acertou! Código sorteado foi ${num_sort}`, 'win');
+        writeToTerminal(`PARABÉNS!! O código era ${num_sort}`, 'win');
         finalizarJogo();
-        return;
-    } 
-    
-    // Errou
-    if (num_user > num_sort) {
-        writeToTerminal(`ACESSO NEGADO! Código sorteado é MENOR que ${num_user}.`, 'lost');
     } else {
-        writeToTerminal(`ACESSO NEGADO! Código sorteado é MAIOR que ${num_user}.`, 'lost');
-    }
-
-    // Fim das tentativas
-    if (restante > 0) {
-        writeToTerminal(`Tentativas restantes: ${restante}`, 'info');
-    } else {
-        writeToTerminal("BLOQUEIO DO SISTEMA ATIVADO!", 'lost');
-        writeToTerminal(`Todas as tentativas acabaram! O número era ${num_sort}, melhore!`, 'error');
-        finalizarJogo();
+        const dica = num_user > num_sort ? "MENOR" : "MAIOR";
+        writeToTerminal(`ERRADO! O número é ${dica} que ${num_user}.`, 'lost');
+        verificarFimDeJogo(restante);
     }
 }
+
+// Função auxiliar para não repetir código de "Game Over"
+function verificarFimDeJogo(restante) {
+    if (restante <= 0 && !gameOver) {
+        writeToTerminal(`SISTEMA BLOQUEADO! O número era ${num_sort}.`, 'error');
+        finalizarJogo();
+    } else if (!gameOver) {
+        writeToTerminal(`Tentativas restantes: ${restante}`, 'info')desabilitarr
 
 // Função para encerrar o jogo e desabilitar entrada
 function finalizarJogo() {
