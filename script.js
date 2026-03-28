@@ -1,95 +1,77 @@
-// Configurações do Jogo
+// Configurações Iniciais
 const min = 1;
-const max = 20;
-const totalTentativas = 3;
+const max = 50;
+let tent = 5;
+let cont = 0;
 
-// Estado do Jogo
-let num_sort = Math.floor(Math.random() * (max - min + 1)) + min;
-let tentativasUsadas = 0;
-let gameOver = false;
-
-// Referências dos Elementos HTML
-const outputArea = document.getElementById('terminal-output');
-const userInput = document.getElementById('user-input');
-const guessButton = document.getElementById('guess-btn');
-
-// Função auxiliar para escrever na página (Terminal)
-function writeToTerminal(message, type = 'info') {
-    const newMessage = document.createElement('p');
-    newMessage.classList.add(`msg-${type}`);
-    newMessage.innerHTML = `> ${message}`;
-    outputArea.appendChild(newMessage);
-    
-    // Rola o terminal para o final automaticamente
-    outputArea.scrollTop = outputArea.scrollHeight;
+// Função de Sorteio (Gerador de Caos)
+function gerarNumero(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Início do Jogo
-writeToTerminal("INICIALIZANDO PROTOCOLO DE ADIVINHAÇÃO...");
-writeToTerminal(`Adivinhe números entre ${min} e ${max}`, 'info');
-writeToTerminal(`Tentativas autorizadas: ${totalTentativas}`, 'info');
+let num_sort = gerarNumero(min, max);
+let num_morte = gerarNumero(min, max);
 
-// Função principal do chute
-function processarChute() {
-    if (gameOver) return;
-
-    const entrada = userInput.value;
-    const num_user = parseInt(entrada);
-    userInput.value = ''; 
-    userInput.focus();
-
-    // 1. VALIDAÇÃO COM PUNIÇÃO
-    if (isNaN(num_user) || num_user < min || num_user > max) {
-        tentativasUsadas++; 
-        let restante = totalTentativas - tentativasUsadas;
-
-        if (isNaN(num_user)) {
-            writeToTerminal("ERRO: Apenas números seu neandertal! Perdeu uma tentativa.", 'error');
-        } else {
-            writeToTerminal(`ERRO: Fora do intervalo (${min}-${max})! Perdeu uma tentativa.`, 'error');
-        }
-
-        verificarFimDeJogo(restante);
-        return; 
-    }
-
-    // 2. LÓGICA DE CHUTE CORRETO
-    tentativasUsadas++;
-    let restante = totalTentativas - tentativasUsadas;
-
-    if (num_user === num_sort) {
-        writeToTerminal(`PARABÉNS!! O código era ${num_sort}`, 'win');
-        finalizarJogo();
-    } else {
-        const dica = num_user > num_sort ? "MENOR" : "MAIOR";
-        writeToTerminal(`ERRADO! O número é ${dica} que ${num_user}.`, 'lost');
-        verificarFimDeJogo(restante);
-    }
+// Garantindo que não sejam iguais (Sua lógica do C)
+while (num_morte === num_sort) {
+    num_morte = gerarNumero(min, max);
 }
 
-// Função auxiliar para verificar fim de jogo
-function verificarFimDeJogo(restante) {
-    if (restante <= 0 && !gameOver) {
-        writeToTerminal(`SISTEMA BLOQUEADO! O número era ${num_sort}.`, 'error');
-        finalizarJogo();
-    } else if (!gameOver) {
-        writeToTerminal(`Tentativas restantes: ${restante}`, 'info');
-    }
+const output = document.getElementById('output');
+const input = document.getElementById('guess-input');
+const btn = document.getElementById('guess-btn');
+
+function adicionarMensagem(texto, classe) {
+    const p = document.createElement('p');
+    p.innerText = `> ${texto}`;
+    p.className = classe;
+    output.appendChild(p);
+    output.scrollTop = output.scrollHeight; // Scroll automático
 }
 
-// Função para encerrar o jogo
 function finalizarJogo() {
-    gameOver = true;
-    userInput.disabled = true;
-    guessButton.innerHTML = "BLOQUEADO";
-    guessButton.disabled = true;
+    input.disabled = true;
+    btn.disabled = true;
+    btn.innerText = "OFFLINE";
 }
 
-// Eventos
-guessButton.addEventListener('click', processarChute);
-
-userInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        processarChute();
+btn.addEventListener('click', () => {
+    let num_user = parseInt(input.value);
+    
+    // Validação de entrada
+    if (isNaN(num_user) || num_user < min || num_user > max) {
+        adicionarMensagem(`ERRO: Digite de ${min} a ${max}!`, "msg-error");
+        return;
     }
+
+    cont++;
+    let restante = tent - cont;
+
+    // Lógica do Número da Morte
+    if (num_user === num_morte) {
+        adicionarMensagem(`SETOR CORROMPIDO! Você atingiu o número da morte: ${num_morte}`, "msg-death");
+        adicionarMensagem(`O sistema colapsou. O alvo era ${num_sort}.`, "msg-error");
+        finalizarJogo();
+        return;
+    }
+
+    // Lógica de Vitória/Dicas
+    if (num_user === num_sort) {
+        adicionarMensagem(`ACESSO CONCEDIDO! Você acertou: ${num_sort}`, "msg-win");
+        adicionarMensagem(`O número da morte era ${num_morte}. Sorte a sua.`, "msg-info");
+        finalizarJogo();
+    } else if (num_user > num_sort) {
+        adicionarMensagem(`Chute ${num_user}: O alvo é MENOR. Restam ${restante}.`, "msg-info");
+    } else {
+        adicionarMensagem(`Chute ${num_user}: O alvo é MAIOR. Restam ${restante}.`, "msg-info");
+    }
+
+    if (cont >= tent && num_user !== num_sort) {
+        adicionarMensagem(`TENTATIVAS ESGOTADAS. O alvo era ${num_sort}.`, "msg-error");
+        adicionarMensagem(`O número da morte era ${num_morte}.`, "msg-info");
+        finalizarJogo();
+    }
+
+    input.value = ""; // Limpa o campo
+    input.focus();    // Volta o foco
 });
