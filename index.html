@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo de Adivinhação</title>
+    <title>Techcorp Terminal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="terminal-container">
-        <div id="output" class="output">
-            <p class="msg-info">> INICIALIZANDO PROTOCOLO DE ADIVINHAÇÃO...</p>
-            <p class="msg-info">> Adivinhe números entre 1 e 50</p>
-            <p id="tentativas-msg" class="msg-info">> Tentativas autorizadas: 5</p>
+        <div class="status-bar">
+            <span class="piscante">⚠️ SISTEMA MONITORADO: FIREWALL ATIVO</span>
         </div>
+        <div id="output" class="output"></div>
         <div class="input-line">
-            <span class="prompt">></span>
-            <input type="number" id="guess-input" placeholder="00" min="1" max="50">
-            <button id="guess-btn">CHUTAR</button>
+            <span class="prompt">C:\TECHCORP\SISTEMA\></span>
+            <span id="range-display" class="range-info">[1-100]</span>
+            <input type="number" id="guess-input" placeholder="--" autofocus>
+            <button id="guess-btn">EXECUTAR</button>
         </div>
     </div>
     <script src="script.js"></script>
