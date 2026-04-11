@@ -1,12 +1,4 @@
-@media (max-width: 600px) {
-    .terminal-container {
-        width: 100% !important; /* Ocupa a largura total */
-        height: 100vh !important; /* Ocupa a altura total da visualização */
-        border: none !important; /* Remove bordas para ganhar espaço */
-        border-radius: 0;
-        padding: 10px !important;
-    }
-/* Reset Básico */
+/* 1. ESTILOS GERAIS (Funciona em todos os dispositivos) */
 * {
     margin: 0;
     padding: 0;
@@ -15,7 +7,7 @@
 
 body {
     background-color: #000;
-    color: #00ff41; /* Verde clássico de terminal */
+    color: #00ff41;
     font-family: 'Courier New', Courier, monospace;
     display: flex;
     justify-content: center;
@@ -34,26 +26,29 @@ body {
     flex-direction: column;
     padding: 15px;
     position: relative;
+    overflow: hidden; /* Garante que nada saia do container */
 }
 
-/* Barra de Alerta */
+/* Barra de Alerta Superior */
 .status-bar {
     font-size: 0.75em;
-    padding: 4px;
+    padding: 8px;
     border-bottom: 1px solid #333;
     margin-bottom: 15px;
     text-align: center;
-    color: #ff3333;
+    color: #ff3333; /* Vermelho de alerta */
     letter-spacing: 2px;
+    font-weight: bold;
 }
 
+/* A mágica do piscar */
 .piscante {
-    animation: pulse 2s infinite;
+    animation: pulse-alerta 1.5s infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-alerta {
     0% { opacity: 1; }
-    50% { opacity: 0.3; }
+    50% { opacity: 0.1; } /* Quase some no meio do ciclo */
     100% { opacity: 1; }
 }
 
@@ -83,36 +78,27 @@ body {
     align-items: center;
     border-top: 1px solid #333;
     padding-top: 15px;
-    padding-bottom: 20px; /* Espaço extra para o teclado não cobrir o input */
-    flex-wrap: wrap; /*
 }
 
 .prompt {
-    color: #00fbff; /* Cor de diretório */
+    color: #00fbff;
     margin-right: 8px;
     font-weight: bold;
 }
 
-.range-info {
-    color: #888;
-    margin-right: 10px;
-    font-size: 0.9em;
-}
-
 input[type="number"] {
-    background: transparent;
-    border: none;
-    color: #00ff41;
+    background: transparent !important;
+    border: none !important;
+    color: #00ff41 !important;
     font-family: inherit;
-    font-size: 1.1em;
     outline: none;
     width: 80px;
     height: 40px;
-    font-size: 1.2em !important;
-    padding: 5px !important;
+    font-size: 1.2em;
+    padding: 5px;
 }
 
-/* Remove setinhas do input number */
+/* Remove setinhas do input */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -123,17 +109,37 @@ input::-webkit-inner-spin-button {
     background-color: #00ff41;
     color: #000;
     border: none;
-    padding: 5px 15px;
-    margin-left: 0 !important;
-    margin-top: 10px;
-    height: 45px;
+    padding: 8px 15px;
     cursor: pointer;
     font-weight: bold;
     font-family: inherit;
-    width: 100%;
+    margin-left: auto; /* Alinha à direita no PC */
 }
 
 #guess-btn:hover {
     background-color: #00fbff;
-  } 
+}
+
+/* 2. AJUSTES PARA MOBILE (Abaixo de 600px) */
+@media (max-width: 600px) {
+    .terminal-container {
+        width: 100% !important;
+        height: 100vh !important;
+        border: none !important;
+        border-radius: 0;
+        padding: 10px !important;
+    }
+
+    .input-line {
+        flex-direction: column; /* Empilha input e botão */
+        align-items: stretch;
+        padding-bottom: 30px; 
+        gap: 10px;
+    }
+
+    #guess-btn {
+        width: 100%;
+        margin-left: 0 !important;
+        height: 50px;
+    }
 }
