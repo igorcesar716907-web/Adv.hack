@@ -1,6 +1,6 @@
 // CONFIGURAÇÕES (Baseadas no seu adv2.c)
 const min = 1;
-const max = 500;
+const max = 400;
 const limiteTentativas = 5;
 let tentativasRestantes = limiteTentativas;
 let duplicar = 1; // Quantidade de firewalls (conforme seu C)
