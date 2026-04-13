@@ -82,9 +82,8 @@ async function processarChute() {
     // 4. Condição de Vitória (Token Correto)
    if (numUser === token) {
         await digitarTexto(`ACESSO GARANTIDO. Validando token ${token}... OK!`, "msg-win");
-        salavarResultado("vitória");
         await digitarTexto("SISTEMA LIBERADO. Deseja iniciar nova sessão?", "msg-info");
-        
+        salavarResultado("vitória");
         // Prepara o botão para reiniciar em vez de chutar
         btn.innerText = "REINICIAR";
         btn.onclick = reiniciarSessao; 
