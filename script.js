@@ -1,9 +1,12 @@
 // CONFIGURAÇÕES (Baseadas no seu adv2.c)
 const min = 1;
-const max = 100;
+const max = 500;
 const limiteTentativas = 5;
 let tentativasRestantes = limiteTentativas;
-let token, firewall;
+let duplicar = 1; // Quantidade de firewalls (conforme seu C)
+let firewalls = []; // Array para múltiplos firewalls
+let token;
+let ultimoChute = null;
 
 const output = document.getElementById('output');
 const input = document.getElementById('guess-input');
@@ -12,15 +15,18 @@ const rangeDisplay = document.getElementById('range-display');
 
 // Lógica de sorteio e "evitarRng"
 function inicializarSistema() {
-    token = Math.floor(Math.random() * (max - min + 1)) + min;
-    firewall = Math.floor(Math.random() * (max - min + 1)) + min;
-    
-    while (firewall === token) {
-        firewall = Math.floor(Math.random() * (max - min + 1)) + min;
+   token = Math.floor(Math.random() * (max - min + 1)) + min;
+   firewalls = []; // Limpa firewalls anteriores
+
+    for (let i = 0; i < duplicar; i++) {
+        let fw;
+        do {
+            fw = Math.floor(Math.random() * (max - min + 1)) + min;
+        } while (fw === token || firewalls.includes(fw)); // Lógica evitarRng
+        firewalls.push(fw);
     }
-    
     rangeDisplay.innerText = `[${min}-${max}]`;
-    console.log(`LOG ACESSO: Token: ${token} | Firewall: ${firewall}`);
+    console.log(`LOG ACESSO: Token: ${token} | Firewalls (${duplicar}): ${firewalls.join(', ')}`);
 }
 
 // Efeito de digitação gradual (Terminal Real)
@@ -42,12 +48,20 @@ async function processarChute() {
     const numUser = parseInt(input.value);
     const valorDigitado = input.value;
     input.value = ""; // Limpa para a próxima entrada
+    // 1. Validação de repetição (O que faltava)
+
+    if (numUser === ultimoChute) {
+        await digitarTexto(`AVISO: O token ${numUser} já foi testado sequencialmente. Tente outro.`, "msg-error");
+        return; 
+    }
 
     // 1. Validação de Entrada
     if (isNaN(numUser) || numUser < 0 || numUser > max) {
         await digitarTexto(`ERRO DE SINTAXE: '${valorDigitado}' está fora do intervalo permitido.`, "msg-error");
         return;
     }
+
+    ultimoChute = numUser;
 
     // 2. Comando de Saída (0)
     if (numUser === 0) {
@@ -57,8 +71,9 @@ async function processarChute() {
     }
 
     // 3. Condição de Derrota (Firewall)
-    if (numUser === firewall) {
-        await digitarTexto(`[!!!] RASTREIO DETECTADO NO SETOR ${firewall}!`, "msg-death");
+    if (firewalls.includes(numUser)) {
+        await digitarTexto(`[!!!] RASTREIO DETECTADO NO SETOR ${numUser}!`, "msg-death");
+        salvarResultado("derrota");
         await digitarTexto("FIREWALL ATIVADO. ACESSO BLOQUEADO PERMANENTEMENTE.", "msg-death");
         finalizarJogo();
         return;
@@ -67,6 +82,7 @@ async function processarChute() {
     // 4. Condição de Vitória (Token Correto)
    if (numUser === token) {
         await digitarTexto(`ACESSO GARANTIDO. Validando token ${token}... OK!`, "msg-win");
+        salavarResultado("vitória");
         await digitarTexto("SISTEMA LIBERADO. Deseja iniciar nova sessão?", "msg-info");
         
         // Prepara o botão para reiniciar em vez de chutar
@@ -81,16 +97,19 @@ async function processarChute() {
     
     if (tentativasRestantes > 0) {
         const direcao = numUser > token ? "MENOR" : "MAIOR";
-        await digitarTexto(`Token incorreto. DICA: O valor real é ${direcao} que ${numUser}.`, "msg-info");
-        await digitarTexto(`Tentativas de acesso restantes: ${tentativasRestantes}`, "msg-info");
+        await digitarTexto(`Token incorreto. Alvo é ${direcao} que ${numUser}.`, "msg-info");
+        await digitarTexto(`Restam ${tentativasRestantes} tentativas. Firewalls ativos: ${duplicar}`, "msg-info");
     } else {
-        await digitarTexto("ALERTA: Muitas tentativas falhas detectadas!", "msg-error");
-        await digitarTexto("Protocolo de segurança: Regenerando Token e Firewall...", "msg-error");
+        await digitarTexto("ALERTA: Protocolo de segurança ativado!", "msg-error");
+        await digitarTexto("Regenerando Token e DUPLICANDO Firewall...", "msg-death");
         
+        // Aplica a lógica do seu C: Dobra os firewalls até o limite
+        duplicar = Math.min(duplicar * 2, 100); 
         tentativasRestantes = limiteTentativas;
+        ultimoChute = null;
         inicializarSistema();
         
-        await digitarTexto("SISTEMA REINICIALIZADO. Tente novamente.", "msg-info");
+        await digitarTexto(`SISTEMA REINICIALIZADO. Atualmente com ${duplicar} firewalls.`, "msg-info");
     }
 }
 
@@ -111,7 +130,7 @@ window.onload = () => {
     inicializarSistema();
     digitarTexto("CONECTANDO AO SERVIDOR TECHCORP...", "msg-info");
     setTimeout(() => {
-        digitarTexto("Aguardando inserção de token de segurança [1-100] para login.", "msg-info");
+        digitarTexto(`Aguardando inserção de token de segurança [${min}-${max}] para login.`, "msg-info");
     }, 800);
 };
 
@@ -119,6 +138,7 @@ window.onload = () => {
 function reiniciarSessao() {
     // Reset de variáveis de estado
     tentativasRestantes = limiteTentativas;
+    ultimoChute = null;
     input.disabled = false;
     input.value = "";
     
@@ -133,4 +153,28 @@ function reiniciarSessao() {
     inicializarSistema();
     digitarTexto("SISTEMA REINICIALIZADO. Novo token de segurança gerado.", "msg-info");
     input.focus();
+}
+
+function salvarResultado(status) {
+    const dataHora = new Date().toLocaleString();
+    const logPartida = `
+========= LOG DE ACESSO TECHCORP =========
+DATA/HORA: ${dataHora}
+RESULTADO: ${status === "vitoria" ? "ACESSO CONCEDIDO" : "SISTEMA BLOQUEADO"}
+TOKEN ALVO: ${token}
+FIREWALLS ATIVOS: ${duplicar} (${firewalls.join(", ")})
+TENTATIVAS RESTANTES: ${tentativasRestantes}
+==========================================
+`;
+
+    // Cria o arquivo TXT
+    const blob = new Blob([logPartida], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    
+    a.href = url;
+    a.download = `log_acesso_${status}.txt`;
+    a.click();
+    
+    window.URL.revokeObjectURL(url);
 }
